@@ -6,29 +6,29 @@ import java.util.List;
 
 public class Hospital extends HospitalFloor {
     private String name = "unnamed";
-    private List<HospitalFloor> floors = new ArrayList<>();
+    private List<HospitalRoom> floors = new ArrayList<>();
 
     public Hospital() {
         name = "unnamed";
     }
 
-    public Hospital(List<HospitalFloor> floors) {
+    public Hospital(List<HospitalRoom> floors) {
         this.floors = floors;
     }
 
-    public void addFloor(HospitalFloor floor) {
+    public void addFloor(HospitalRoom floor) {
         if (floors.stream().noneMatch(f->f.name.equals(floor.name))) {
             floors.add(floor);
         } else throw new IllegalStateException("A floor called "+floor.name+" is already defined");
     }
 
-    public void remFloor(HospitalFloor floor) {
+    public void remFloor(HospitalRoom floor) {
         if (floors.stream().anyMatch(f->f.name.equals(floor.name))) {
             floors.remove(floor);
         } else throw new IllegalStateException("A floor called "+floor.name+" is not defined");
     }
 
-    public List<HospitalFloor> getFloors() {
+    public List<HospitalRoom> getFloors() {
         return floors;
     }
 
@@ -48,6 +48,11 @@ public class Hospital extends HospitalFloor {
     @Override
     public void onSave() {
         System.out.println("Saved hospital "+name);
+    }
+
+    @Override
+    public void setPatients(Patient[] toArray) {
+        throw new UnsupportedOperationException();
     }
 
     public static Hospital load(File file) {

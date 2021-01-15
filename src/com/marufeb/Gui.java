@@ -5,12 +5,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 
 public class Gui extends JFrame {
     private final JFileChooser chooser = new JFileChooser(System.getProperty("user.home"));
     private BackupExecutor executor;
-    private final JMenuBar menuBar = new JMenuBar();
     private final JPanel settings = new JPanel(new BorderLayout());
+    private final JPanel personForm = new JPanel(new BorderLayout());
     private final DefaultListModel<String> usersData = new DefaultListModel<>();
     private Component current = null;
     private File def = null;
@@ -74,8 +76,13 @@ public class Gui extends JFrame {
 
         final Button save = new Button("Save");
         final Button cancel = new Button("Close");
+        final Button create = new Button("New patient");
+        final Button delete = new Button("Delete patient");
         final JPanel buttons = new JPanel(new BorderLayout());
+        final JPanel persons = new JPanel(new BorderLayout());
+        final JPanel personsOPT = new JPanel(new FlowLayout());
         final JPanel label = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 0));
+
         final JList<String> users = new JList<>(usersData);
 
         cancel.addActionListener(new AbstractAction() {
@@ -109,6 +116,32 @@ public class Gui extends JFrame {
         label.add(new JLabel("Hospital name"));
         label.add(hName);
 
+        delete.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final String temp = users.getSelectedValue();
+                if (temp != null) {
+                    users.clearSelection();
+                    usersData.removeElement(temp);
+                    currentH.getFloors().get(0).setPatients(Arrays.stream(currentH.getFloors().get(0).getPatientsList()).filter(it->!it.getName().equals(temp)).toArray(Patient[]::new));
+                }
+            }
+        });
+
+
+        create.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createPatient();
+            }
+        });
+
+        personsOPT.add(delete);
+        personsOPT.add(create);
+
+        persons.add(users, BorderLayout.CENTER);
+        persons.add(personsOPT, BorderLayout.SOUTH);
+
         fields.add(label, BorderLayout.NORTH);
 
         buttons.add(save, BorderLayout.WEST);
@@ -116,8 +149,9 @@ public class Gui extends JFrame {
 
         users.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         settings.add(fields, BorderLayout.NORTH);
-        settings.add(users, BorderLayout.CENTER);
+        settings.add(persons, BorderLayout.CENTER);
         settings.add(buttons, BorderLayout.SOUTH);
+        pack();
         update(settings);
     }
 
@@ -126,7 +160,44 @@ public class Gui extends JFrame {
      * It also update the graphics.
      */
     private void createPatient() {
+        personForm.removeAll();
+        final JTextField name = new JTextField("name");
+        final JTextField age = new JTextField("age");
+        final JTextArea illness = new JTextArea("Illness");
+        final JButton save = new JButton("Save");
+        final JButton cancel = new JButton("cancel");
+        final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        final JPanel data = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
+        save.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    final Patient patient = new Patient(name.getText(), Integer.parseInt(age.getText()), illness.getText(), new Date(System.currentTimeMillis()));
+                    currentH.getFloors().get(0).addPatient(patient);
+                    usersData.addElement(patient.getName());
+                } catch (Exception ex) { genError(ex); }
+                update(settings);
+            }
+        });
+
+        cancel.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                update(settings);
+            }
+        });
+
+        data.add(name);
+        data.add(age);
+        data.add(illness);
+
+        buttons.add(save);
+        buttons.add(cancel);
+        personForm.add(buttons, BorderLayout.SOUTH);
+        personForm.add(data, BorderLayout.CENTER);
+        pack();
+        update(personForm);
     }
 
     /**

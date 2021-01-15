@@ -1,9 +1,6 @@
 package com.marufeb;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class HospitalRoom extends HospitalFloor {
     private final Map<UUID, Patient> patients = new HashMap<>();
@@ -47,5 +44,11 @@ public class HospitalRoom extends HospitalFloor {
     @Override
     public void onSave() {
         System.out.println("Saving floor: ".concat(name));
+    }
+
+    @Override
+    public void setPatients(Patient[] toArray) {
+        patients.clear();
+        Arrays.stream(toArray).forEach(it->patients.putIfAbsent(it.getId(), it));
     }
 }
