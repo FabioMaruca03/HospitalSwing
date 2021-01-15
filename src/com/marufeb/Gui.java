@@ -9,186 +9,194 @@ import java.util.Arrays;
 import java.util.Date;
 
 public class Gui extends JFrame {
-    private final JPanel hView = new JPanel(new BorderLayout());
-    private final DefaultListModel<String> patientsData = new DefaultListModel<>();
-    private final JFileChooser picker = new JFileChooser(System.getProperty("user.home"));
-    private Backup backup;
-    private Hospital h;
-    private Component view = null;
-    private File opened;
-    private final JPanel person = new JPanel(new BorderLayout());
+    private Backup thread;
+    private final JPanel jPanel = new JPanel(new BorderLayout());
+    private Component c = null;
+    private File file;
+    private Hospital basement;
+    private final JFileChooser jFileChooser = new JFileChooser(System.getProperty("user.home"));
+    private final DefaultListModel<String> simpleData = new DefaultListModel<>();
+    private final JPanel hospital = new JPanel(new BorderLayout());
 
-    private void load() {
-        try {
-            if (JOptionPane.showConfirmDialog(this, "Do you want to load a file?\nIf you want a new Hospital close the window") == JOptionPane.OK_OPTION) {
-                picker.setSelectedFile(opened);
-                picker.showOpenDialog(this);
-                final File selectedFile = picker.getSelectedFile();
-                h = Hospital.load(selectedFile);
-                for (Patient patient : h.getFloors().get(0).getPatientsList()) {
-                    patientsData.addElement(patient.getName());
-                }
-                opened = selectedFile;
-            } else {
-                h = new Hospital();
-                h.addFloor(new HospitalRoom(new ArrayList<>()));
-                opened = new File(System.getProperty("user.home")+File.separatorChar+"Hospital Management System.bak");
-            }
-            setTitle("Hospital "+h.getName());
-            if (backup != null) backup.join();
-            backup = new Backup(h);
-            showHospitalInit();
-        } catch (Exception e) {
-            popup(e);
-            load();
-        }
+    private void whenErrorAppears(Exception e) {
+        JOptionPane.showMessageDialog(this, new JLabel(e.getMessage()), "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    private void showHospitalInit() {
+    private void init() {
 
-        final JPanel panel = new JPanel(new FlowLayout());
-        final Button save = new Button("Save");
-        final JList<String> users = new JList<>(patientsData);
-        final JPanel people = new JPanel(new BorderLayout());
-        final JTextField hName = new JTextField(h.getName());
-        final JPanel fields = new JPanel(new BorderLayout());
-        final Button cancel = new Button("Close");
-        final Button create = new Button("New patient");
-        final JPanel label = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 0));
-        final JPanel buttons = new JPanel(new BorderLayout());
-        final Button delete = new Button("Delete patient");
+        final JPanel panel1 = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 0));
+        final Button button2 = new Button("New patient");
+        final JPanel jPanel4 = new JPanel(new BorderLayout());
+        final JPanel jPanel3 = new JPanel(new BorderLayout());
+        final Button button3 = new Button("Delete patient");
+        final JPanel jPanel1 = new JPanel(new BorderLayout());
+        final Button button = new Button("Save");
+        final JTextField jTextField = new JTextField(basement.getName());
+        final Button button1 = new Button("Close");
+        final JList<String> stringJList = new JList<>(simpleData);
+        final JPanel jPanel2 = new JPanel(new FlowLayout());
 
 
-        cancel.addActionListener(new AbstractAction() {
+        panel1.add(jTextField);
+
+
+        panel1.add(new JLabel("Hospital"));
+
+        button2.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getPatient();
+            }
+        });
+
+        button3.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final String temp = stringJList.getSelectedValue();
+                if (temp != null) {
+                    stringJList.clearSelection();
+                    simpleData.removeElement(temp);
+                    basement.getFloors().get(0).setPatients(Arrays.stream(basement.getFloors().get(0).getPatientsList()).filter(it->!it.getName().equals(temp)).toArray(Patient[]::new));
+                }
+            }
+        });
+
+        button1.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);
             }
         });
 
-
-        label.add(new JLabel("Hospital"));
-        label.add(hName);
-
-        delete.addActionListener(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final String temp = users.getSelectedValue();
-                if (temp != null) {
-                    users.clearSelection();
-                    patientsData.removeElement(temp);
-                    h.getFloors().get(0).setPatients(Arrays.stream(h.getFloors().get(0).getPatientsList()).filter(it->!it.getName().equals(temp)).toArray(Patient[]::new));
-                }
-            }
-        });
-
-        save.addActionListener(new AbstractAction() {
+        button.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    if (h == null) {
-                        h = new Hospital();
+                    if (basement == null) {
+                        basement = new Hospital();
                     }
-                    h.setName(hName.getText());
-                    setTitle("Hospital ".concat(h.getName()));
-                    if (picker.showSaveDialog(view) == JFileChooser.APPROVE_OPTION) {
-                        Hospital.save(h, picker.getSelectedFile());
+                    setTitle("Hospital ".concat(basement.getName()));
+                    basement.setName(jTextField.getText());
+
+                    if (jFileChooser.showSaveDialog(c) == JFileChooser.APPROVE_OPTION) {
+                        Hospital.save(basement, jFileChooser.getSelectedFile());
                     } else throw new IllegalStateException("Cannot save the file");
                 } catch (Exception exception) {
-                    popup(exception);
+                    whenErrorAppears(exception);
                 }
             }
         });
 
 
-        create.addActionListener(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                generatePatient();
-            }
-        });
-
-        panel.add(delete);
-        panel.add(create);
-        fields.add(label, BorderLayout.NORTH);
-        people.add(users, BorderLayout.CENTER);
-        people.add(panel, BorderLayout.SOUTH);
-        hView.add(fields, BorderLayout.NORTH);
-        hView.add(people, BorderLayout.CENTER);
-        hView.add(buttons, BorderLayout.SOUTH);
-        buttons.add(save, BorderLayout.WEST);
-        buttons.add(cancel, BorderLayout.EAST);
-
-        users.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        pack();
-        changeView(hView);
-    }
-
-    public Gui() throws HeadlessException {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-        picker.setName("Load hospital");
-        setSize(new Dimension(700, 500));
-        setTitle("Hospital: ");
-        load();
-        setVisible(true);
-    }
-
-    private void generatePatient() {
-        person.removeAll();
-        final JButton cancel = new JButton("Cancel");
-        final JPanel data = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        final JTextField name = new JTextField("Name");
-        final JTextField age = new JTextField("Age");
-        final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        final JButton save = new JButton("Save");
-        final JTextArea illness = new JTextArea("Description");
 
 
-        cancel.addActionListener(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                changeView(hView);
-            }
-        });
-
-        save.addActionListener(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    final Patient patient = new Patient(name.getText(), Integer.parseInt(age.getText()), illness.getText(), new Date(System.currentTimeMillis()));
-                    patientsData.addElement(patient.getName());
-                    h.getFloors().get(0).addPatient(patient);
-                } catch (Exception ex) { popup(ex); }
-                changeView(hView);
-            }
-        });
-        person.add(data, BorderLayout.CENTER);
-        person.add(buttons, BorderLayout.SOUTH);
+        hospital.add(jPanel3, BorderLayout.SOUTH);
+        jPanel3.add(button1, BorderLayout.EAST);
 
 
-        buttons.add(save);
-        buttons.add(cancel);
+        jPanel2.add(button3);
+        jPanel1.add(jPanel2, BorderLayout.SOUTH);
+        jPanel4.add(panel1, BorderLayout.NORTH);
 
-        data.add(name);
-        data.add(age);
-        data.add(illness);
+        jPanel3.add(button, BorderLayout.WEST);
+        stringJList.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        jPanel2.add(button2);
+
+        jPanel1.add(stringJList, BorderLayout.CENTER);
+        hospital.add(jPanel1, BorderLayout.CENTER);
+        hospital.add(jPanel4, BorderLayout.NORTH);
 
         pack();
-        changeView(person);
+        uploadView(hospital);
     }
 
-    private void changeView(Component view) {
-        if (this.view != null)
-            getContentPane().remove(this.view);
-        if (view != null) {
-            getContentPane().add(view, BorderLayout.CENTER);
-            this.view = view;
+    private void get() {
+        try {
+            if (JOptionPane.showConfirmDialog(this, "Do you want to load a file?\nIf you want a new Hospital close the window") == JOptionPane.OK_OPTION) {
+                jFileChooser.setSelectedFile(file);
+                jFileChooser.showOpenDialog(this);
+                final File selectedFile = jFileChooser.getSelectedFile();
+                basement = Hospital.load(selectedFile);
+                for (Patient patient : basement.getFloors().get(0).getPatientsList()) {
+                    simpleData.addElement(patient.getName());
+                }
+                file = selectedFile;
+            } else {
+                basement = new Hospital();
+                basement.addFloor(new HospitalRoom(new ArrayList<>()));
+                file = new File(System.getProperty("user.home")+File.separatorChar+"Hospital Management System.bak");
+            }
+            setTitle("Hospital "+ basement.getName());
+            if (thread != null) thread.join();
+            thread = new Backup(basement);
+            init();
+        } catch (Exception e) {
+            whenErrorAppears(e);
+            get();
         }
     }
 
-    private void popup(Exception e) {
-        JOptionPane.showMessageDialog(this, new JLabel(e.getMessage()), "Error", JOptionPane.ERROR_MESSAGE);
+    public Gui() throws HeadlessException {
+        setSize(new Dimension(700, 500));
+        setLayout(new BorderLayout());
+        jFileChooser.setName("Load hospital");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("Hospital: ");
+        get();
+        setVisible(true);
+    }
+
+    private void uploadView(Component c) {
+        if (this.c != null)
+            getContentPane().remove(this.c);
+        if (c != null) {
+            getContentPane().add(c, BorderLayout.CENTER);
+            this.c = c;
+        }
+    }
+
+    private void getPatient() {
+        jPanel.removeAll();
+        final JButton jButton1 = new JButton("Save");
+        final JPanel jPanel1 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        final JTextField jTextField = new JTextField("Age");
+
+        final JTextArea description = new JTextArea("Description");
+        final JButton jButton = new JButton("Cancel");
+        final JPanel jPanel2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        final JTextField jTextField1 = new JTextField("Name");
+
+        jButton1.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    final Patient patient = new Patient(jTextField1.getText(), Integer.parseInt(jTextField.getText()), description.getText(), new Date(System.currentTimeMillis()));
+                    simpleData.addElement(patient.getName());
+                    basement.getFloors().get(0).addPatient(patient);
+                } catch (Exception ex) { whenErrorAppears(ex); }
+                uploadView(hospital);
+            }
+        });
+        jButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                uploadView(hospital);
+            }
+        });
+
+
+        jPanel2.add(jTextField1);
+        jPanel2.add(jTextField);
+        jPanel.add(jPanel2, BorderLayout.CENTER);
+        jPanel1.add(jButton);
+        jPanel2.add(description);
+        jPanel1.add(jButton1);
+
+        jPanel.add(jPanel1, BorderLayout.SOUTH);
+
+        pack();
+        uploadView(jPanel);
     }
 
     public static void main(String[] args) {

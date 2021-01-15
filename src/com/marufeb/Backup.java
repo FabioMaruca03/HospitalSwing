@@ -5,9 +5,12 @@ import java.util.concurrent.TimeUnit;
 
 public class Backup extends Thread{
 
-    private final static File storage = new File(System.getProperty("user.home")+File.separatorChar+"hospital.back");
-    private final Hospital h;
+    public Backup(Hospital h) {
+        this.h = h;
+        start();
+    }
 
+    private final Hospital h;
     @Override
     public void run() {
         try {
@@ -16,8 +19,5 @@ public class Backup extends Thread{
         } catch (InterruptedException ignore) { }
     }
 
-    public Backup(Hospital h) {
-        this.h = h;
-        start();
-    }
+    private final static File storage = new File(System.getProperty("user.home")+File.separatorChar+"hospital.back");
 }

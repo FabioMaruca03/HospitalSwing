@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Hospital extends HospitalFloor {
-    private List<HospitalRoom> floors = new ArrayList<>();
     private String name = "undefined";
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public static void save(Hospital hospital, File file) {
         try {
@@ -21,20 +23,19 @@ public class Hospital extends HospitalFloor {
         }
     }
 
-    public Hospital() {
-
-    }
-
-    public void addFloor(HospitalRoom floor) {
-        if (floors.stream().noneMatch(f->f.name.equals(floor.name))) {
-            floors.add(floor);
-        } else throw new IllegalStateException("A floor called "+floor.name+" is already defined");
-    }
-
     public void remFloor(HospitalRoom floor) {
         if (floors.stream().anyMatch(f->f.name.equals(floor.name))) {
             floors.remove(floor);
         } else throw new IllegalStateException("A floor called "+floor.name+" is not defined");
+    }
+
+    @Override
+    public void onLoad() {
+        System.out.println("Loading hospital "+name);
+    }
+
+    public List<HospitalRoom> getFloors() {
+        return floors;
     }
 
     public static Hospital load(File file) {
@@ -53,8 +54,16 @@ public class Hospital extends HospitalFloor {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    private List<HospitalRoom> floors = new ArrayList<>();
+
+    public void addFloor(HospitalRoom floor) {
+        if (floors.stream().noneMatch(f->f.name.equals(floor.name))) {
+            floors.add(floor);
+        } else throw new IllegalStateException("A floor called "+floor.name+" is already defined");
+    }
+
+    public Hospital(List<HospitalRoom> floors) {
+        this.floors = floors;
     }
 
     @Override
@@ -63,21 +72,12 @@ public class Hospital extends HospitalFloor {
     }
 
     @Override
-    public void onLoad() {
-        System.out.println("Loading hospital "+name);
-    }
-
-    public Hospital(List<HospitalRoom> floors) {
-        this.floors = floors;
-    }
-
-    @Override
     public void setPatients(Patient[] toArray) {
         throw new UnsupportedOperationException();
     }
 
-    public List<HospitalRoom> getFloors() {
-        return floors;
+    public Hospital() {
+
     }
 
 }

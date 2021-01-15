@@ -3,19 +3,19 @@ package com.marufeb;
 import java.io.Serializable;
 
 public abstract class HospitalFloor implements Serializable {
-    public HospitalFloor(String name) {
-        this.name = name;
-    }
+    public abstract void onSave();
 
-    protected String name;
+    public abstract void onLoad();
+
+    public abstract void setPatients(Patient[] toArray);
 
     public HospitalFloor() {
         name = "floor";
     }
 
-    public abstract void setPatients(Patient[] toArray);
+    public HospitalFloor(String name) {
+        this.name = name;
+    }
 
-    public abstract void onSave();
-
-    public abstract void onLoad();
+    protected String name;
 }
