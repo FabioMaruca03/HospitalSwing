@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eclipse-userlibraries>
+  <library name="JavaFX JDK">
+    <archive path="/Users/fabiomaruca/Documents/SDK/javafx-sdk-11.0.2/lib/src.zip" />
+    <archive path="/Users/fabiomaruca/Documents/SDK/javafx-sdk-11.0.2/lib/javafx-swt.jar" />
+    <archive path="/Users/fabiomaruca/Documents/SDK/javafx-sdk-11.0.2/lib/javafx.web.jar" />
+    <archive path="/Users/fabiomaruca/Documents/SDK/javafx-sdk-11.0.2/lib/javafx.base.jar" />
+    <archive path="/Users/fabiomaruca/Documents/SDK/javafx-sdk-11.0.2/lib/javafx.fxml.jar" />
+    <archive path="/Users/fabiomaruca/Documents/SDK/javafx-sdk-11.0.2/lib/javafx.media.jar" />
+    <archive path="/Users/fabiomaruca/Documents/SDK/javafx-sdk-11.0.2/lib/javafx.swing.jar" />
+    <archive path="/Users/fabiomaruca/Documents/SDK/javafx-sdk-11.0.2/lib/javafx.controls.jar" />
+    <archive path="/Users/fabiomaruca/Documents/SDK/javafx-sdk-11.0.2/lib/javafx.graphics.jar" />
+  </library>
+  <library name="scala-sdk-2.13.3">
+    <archive path="/Users/fabiomaruca/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.13.3.jar" />
+    <archive path="/Users/fabiomaruca/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.13.3.jar" />
+    <archive path="/Users/fabiomaruca/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.13.3-sources.jar" />
+  </library>
+</eclipse-userlibraries>
+
