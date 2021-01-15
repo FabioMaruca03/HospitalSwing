@@ -5,12 +5,11 @@ import java.util.Date;
 import java.util.UUID;
 
 public class Patient implements Serializable {
-    private final UUID id = UUID.randomUUID();
-    private String name;
-    private int age;
-    private String description;
-    private Date hospitalized;
     private HospitalRoom room = null;
+    private String description, name;
+    private Date hospitalized;
+    private int age;
+    private final UUID id = UUID.randomUUID();
 
     public Patient(String name, int age, String description, Date hospitalized, HospitalRoom room) {
         this.name = name;

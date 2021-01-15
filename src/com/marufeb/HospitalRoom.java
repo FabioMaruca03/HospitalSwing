@@ -3,19 +3,21 @@ package com.marufeb;
 import java.util.*;
 
 public class HospitalRoom extends HospitalFloor {
-    private final Map<UUID, Patient> patients = new HashMap<>();
-
-    public HospitalRoom(List<Patient> patients) {
-        super();
-        patients.forEach(p-> this.patients.putIfAbsent(p.getId(), p));
+    private void remPatient(UUID patient) {
+        patients.remove(patient);
     }
+
+    private final Map<UUID, Patient> patients = new HashMap<>();
 
     public Map<UUID, Patient> getPatients() {
         return patients;
     }
 
-    public Patient[] getPatientsList() {
-        return patients.values().toArray(new Patient[0]);
+    public void remPatient(Patient patient) {
+        if (patient.getRoom().equals(this)) {
+            remPatient(patient.getId());
+            patient.setRoom(null);
+        } else throw new IllegalStateException("Patient "+patient.getId().toString()+" not in room "+name);
     }
 
     public void addPatient(Patient patient) {
@@ -25,15 +27,8 @@ public class HospitalRoom extends HospitalFloor {
         } else throw new IllegalStateException("Patient is already in room: "+patient.getRoom().name);
     }
 
-    private void remPatient(UUID patient) {
-        patients.remove(patient);
-    }
-
-    public void remPatient(Patient patient) {
-        if (patient.getRoom().equals(this)) {
-            remPatient(patient.getId());
-            patient.setRoom(null);
-        } else throw new IllegalStateException("Patient "+patient.getId().toString()+" not in room "+name);
+    public Patient[] getPatientsList() {
+        return patients.values().toArray(new Patient[0]);
     }
 
     @Override
@@ -50,5 +45,10 @@ public class HospitalRoom extends HospitalFloor {
     public void setPatients(Patient[] toArray) {
         patients.clear();
         Arrays.stream(toArray).forEach(it->patients.putIfAbsent(it.getId(), it));
+    }
+
+    public HospitalRoom(List<Patient> patients) {
+        super();
+        patients.forEach(p-> this.patients.putIfAbsent(p.getId(), p));
     }
 }
